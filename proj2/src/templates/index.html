@@ -1,0 +1,114 @@
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>{{ name }} - My Page</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<!-- CSS only -->
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+		<link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+		<!-- <link href="../static/style.css" rel="stylesheet"> -->
+		<!-- JavaScript Bundle with Popper -->
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+	</head>
+
+	<body>
+		<div class="container">
+			<div class="row">
+				<div name="side1" class="col-sm-3 div_people">
+					<h3 class="blue fw-bold m-3">Interesting people</h3>
+					{% for entry in nodes %}
+						<div class="row m-2 align-items-center">
+							<div class="col-md-6 col-lg-8 col-xl-9 blue fw-bold">
+								{{entry['name']}}
+							</div>
+							<div class="col-md-4 col-lg-4 col-xl-3">
+								<a class="btn btn-success btn-sm active fs-6" role="button" href="/follow/{{entry['name']}}">Follow</a>
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+
+				<div name="content" class="col-sm-6 walled">
+
+					<div class="row div_message">
+						
+						<form method="post" action="/submit_message" id="form_message">
+						  <div class="form-group m-1">
+							<h4 class="blue fw-bold mt-3">Message</h4>
+						    <input type="text" class="form-control mt-1" name="msg" id="msg" placeholder="What are you thinking about?">
+						  </div>
+						  <div class="form-check m-1 mt-2">
+						    <input name="ephemeral" type="checkbox" class="form-check-input" id="ephemeral">
+						    <label class="form-check-label blue fw-bold" for="ephemeral">Ephemeral Message</label>
+							<div id="ephemeral_duration" class="form-group mt-1">
+								<input name="duration" type="number" id="duration" class="form-control" min="0" placeholder="Duration until expiration (in seconds)">
+							</div>
+						  </div>
+						  <div>
+							<button type="submit" class="mt-2 ms-1 btn btn-primary btn-outline-light fs-6">Submit</button>
+						  </div>
+						</form>
+
+					</div>
+
+						{% if hole != '' %}
+
+						<div class="card border-danger my-3">
+						  <div class="card-header">
+							  <strong>WARNING</strong>
+						  </div>
+						  <div class="card-body text-danger">
+						    <blockquote class="blockquote mb-0">
+							    <p>Some messages are missing from: {{hole}}</p>
+						    </blockquote>
+						  </div>
+						</div>
+
+						{% endif %}
+
+					{% for msg in msgs%}
+					
+
+					{% set valid = msg.valid_hash %}
+					{% set card_border = '' if valid else 'border-danger' %}
+					{% set card_text = '' if valid else 'text-danger' %}
+					{% set ephemeral = msg.until != None %}
+					{% set expired = ephemeral and (msg.until < cur_time) %}
+					{% set expires_text = '- Expires in '+((msg.until-cur_time)|string)+'s' if ephemeral and not expired else '' %}
+					{% set expires_text = '- Expired' if expired else expires_text %}
+					{% set msg_number = ' - #'+(msg.message_id|string) if ephemeral != True else ' - Ephemeral' %}
+
+					<div class="card {{ card_border }} m-1 mt-3">
+					  <div class="card-header">
+						  <strong class="blue">{{msg.publisher}} {{ msg_number }} {{' - INVALID' if not valid else '' }} </strong>
+						   - 
+						   <cite>{{timestamp_converter(msg.published)}} {{ expires_text }} </cite>
+					  </div>
+					  <div class="card-body {{ card_text }}">
+					    <blockquote class="blockquote mb-0">
+						    <p>{{msg.msg}} <!-- {{msg.msg_hash}} {{msg.previous_hash}}</p> //-->
+					    </blockquote>
+					  </div>
+					</div>
+
+					{% endfor %}
+				</div>
+
+				<div name="side2" class="col-sm-3 div_following">
+					<h3 class="blue fw-bold m-3">Following</h3>
+					{% for entry in following %}
+						<div class="row m-2 align-items-center">
+							<div class="col-sm-6 blue fw-bold">
+								{{entry}}
+							</div>
+							<div class="col-sm-4">
+								<a class="btn btn-danger btn-sm active fs-6" role="button" href="/unfollow/{{entry}}">Unfollow</a>
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+	</body>
+
+</html>

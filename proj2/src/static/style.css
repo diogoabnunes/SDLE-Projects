@@ -1,0 +1,30 @@
+.walled {
+    border-left: #0196ab solid 4px;
+    border-right: #0196ab solid 4px;
+}
+
+.blue {
+    color: #0196ab;
+}
+
+.btn-primary, .btn-primary:hover, .btn-primary:active, .btn-primary:visited, .btn-outline-primary {
+    background-color: #0196ab !important;
+}
+
+#ephemeral_duration {
+    display: none;
+}
+  
+#ephemeral:checked~#ephemeral_duration {
+    display: block;
+}
+
+#form_message {
+    height: 210px;
+}
+
+footer {
+    border-top: #0196ab solid 4px;
+    border-left: #0196ab solid 4px;
+    border-right: #0196ab solid 4px;
+}
